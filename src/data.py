@@ -26,6 +26,36 @@ DROP_COLUMNS = {
     "source_file",
     "target",
 }
+DEFAULT_FEATURE_COLUMNS = {
+    "dst_port",
+    "protocol",
+    "flow_duration",
+    "tot_fwd_pkts",
+    "tot_bwd_pkts",
+    "totlen_fwd_pkts",
+    "totlen_bwd_pkts",
+    "fwd_pkt_len_mean",
+    "fwd_pkt_len_std",
+    "bwd_pkt_len_mean",
+    "bwd_pkt_len_std",
+    "flow_byts_s",
+    "flow_pkts_s",
+    "flow_iat_mean",
+    "flow_iat_std",
+    "flow_iat_max",
+    "flow_iat_min",
+    "fwd_pkts_s",
+    "bwd_pkts_s",
+    "pkt_len_mean",
+    "pkt_len_std",
+    "pkt_len_var",
+    "syn_flag_cnt",
+    "ack_flag_cnt",
+    "init_fwd_win_byts",
+    "init_bwd_win_byts",
+    "active_mean",
+    "idle_mean",
+}
 
 
 def normalize_column_name(name: object) -> str:
@@ -65,6 +95,7 @@ def load_binary_dataset(
     max_rows_per_class_per_file: int = 10_000,
     chunksize: int = 100_000,
     random_state: int = RANDOM_SEED,
+    feature_columns: set[str] | None = None,
 ) -> tuple[pd.DataFrame, dict]:
     """Load a deterministic sample for benign-vs-DDoS classification.
 
@@ -77,12 +108,19 @@ def load_binary_dataset(
     label_counts_after: dict[str, Counter] = {}
     schemas = profile_schemas(data_dir)
     per_chunk_cap = max(50, max_rows_per_class_per_file // 10)
+    selected_columns = set(feature_columns or DEFAULT_FEATURE_COLUMNS)
+    selected_columns.add("label")
 
     for file_index, path in enumerate(list_csv_files(data_dir)):
         before = Counter()
         after = Counter()
         for chunk_index, chunk in enumerate(
-            pd.read_csv(path, chunksize=chunksize, low_memory=False)
+            pd.read_csv(
+                path,
+                chunksize=chunksize,
+                low_memory=False,
+                usecols=lambda column: normalize_column_name(column) in selected_columns,
+            )
         ):
             chunk.columns = normalize_columns(chunk.columns)
             if "label" not in chunk.columns:
@@ -138,6 +176,7 @@ def load_binary_dataset(
         },
         "rows_loaded": int(len(sampled)),
         "max_rows_per_class_per_file": max_rows_per_class_per_file,
+        "candidate_feature_columns": sorted(selected_columns - {"label"}),
     }
     return sampled, profile
 
