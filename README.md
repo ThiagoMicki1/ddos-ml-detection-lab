@@ -129,7 +129,9 @@ Run tests:
 python -m pytest -q
 ```
 
-Run the corrected experiment:
+To reproduce the full experiment, download the public dataset from the sources above and place `02-20-2018.csv` and `02-21-2018.csv` directly under `data/`. The raw data is intentionally excluded from this repository; [docs/dataset.md](docs/dataset.md) has the dataset notes.
+
+Then run the corrected experiment:
 
 ```bash
 python -m src.train --max-rows-per-class-per-file 10000 --reports-dir reports

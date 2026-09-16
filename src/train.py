@@ -191,20 +191,23 @@ def run_experiment(args: argparse.Namespace) -> dict:
         importance.to_csv(reports_dir / "permutation_importance.csv", index=False)
         importance_rows = importance.head(10).to_dict(orient="records")
 
+    dropped_identifier_features = [
+        "flow_id",
+        "src_ip",
+        "src_port",
+        "dst_ip",
+        "timestamp",
+    ]
+    if not args.keep_dst_port:
+        dropped_identifier_features.append("dst_port")
+
     payload = {
         "dataset": "CSE-CIC-IDS2018 on AWS",
         "scope": "Binary classification of Benign vs DDoS network flows",
         "seed": args.seed,
         "holdout_file": args.holdout_file,
         "drop_dst_port": not args.keep_dst_port,
-        "dropped_identifier_features": [
-            "flow_id",
-            "src_ip",
-            "src_port",
-            "dst_ip",
-            "timestamp",
-            "dst_port",
-        ],
+        "dropped_identifier_features": dropped_identifier_features,
         "data_profile": data_profile,
         "split_counts": {
             "train": train_frame["target"].value_counts().sort_index().to_dict(),

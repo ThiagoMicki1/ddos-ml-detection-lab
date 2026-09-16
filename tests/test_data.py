@@ -61,3 +61,16 @@ def test_make_feature_frame_drops_identifiers_and_dst_port():
     assert "dst_port" not in columns
     assert "flow_byts_s" not in columns
     assert X.empty
+
+
+def test_make_feature_frame_can_keep_destination_port_for_shortcut_analysis():
+    frame = pd.DataFrame(
+        {
+            "dst_port": [80, 443],
+            "flow_byts_s": [1200.0, 1500.0],
+            "target": [0, 1],
+        }
+    )
+    X, columns = make_feature_frame(frame, drop_dst_port=False)
+    assert columns == ["dst_port", "flow_byts_s"]
+    assert X["dst_port"].tolist() == [80, 443]

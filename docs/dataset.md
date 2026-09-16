@@ -54,10 +54,10 @@ The repaired pipeline normalizes column names and avoids using these identifier 
 
 The dataset and `archive.zip` are intentionally not committed. They are large research artifacts and may have redistribution restrictions. Reproduce the project by downloading the dataset from the official source and placing the CSV files under `data/`.
 
-The AWS registry provides no-account S3 access:
+The AWS registry provides no-account S3 access. This is optional and downloads much more data than this lab needs:
 
 ```bash
 aws s3 sync --no-sign-request --region ca-central-1 s3://cse-cic-ids2018/ data/raw-cse-cic-ids2018/
 ```
 
-The exact local CSV layout may differ depending on how the dataset is downloaded or extracted.
+After downloading or extracting the dataset, copy `02-20-2018.csv` and `02-21-2018.csv` directly into `data/` before running the experiment. The training command only reads CSV files in the directory passed to `--data-dir`; it does not search nested download folders.
