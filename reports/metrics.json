@@ -1,0 +1,334 @@
+{
+  "dataset": "CSE-CIC-IDS2018 on AWS",
+  "scope": "Binary classification of Benign vs DDoS network flows",
+  "seed": 42,
+  "holdout_file": "02-21-2018.csv",
+  "drop_dst_port": true,
+  "dropped_identifier_features": [
+    "flow_id",
+    "src_ip",
+    "src_port",
+    "dst_ip",
+    "timestamp",
+    "dst_port"
+  ],
+  "data_profile": {
+    "schemas": {
+      "02-14-2018.csv": 80,
+      "02-15-2018.csv": 80,
+      "02-16-2018.csv": 80,
+      "02-20-2018.csv": 84,
+      "02-21-2018.csv": 80,
+      "02-22-2018.csv": 80,
+      "02-23-2018.csv": 80,
+      "02-28-2018.csv": 80,
+      "03-01-2018.csv": 80,
+      "03-02-2018.csv": 80
+    },
+    "label_counts_before": {
+      "02-20-2018.csv": {
+        "DDoS attacks-LOIC-HTTP": 576191,
+        "Benign": 7372557
+      },
+      "02-21-2018.csv": {
+        "DDOS attack-HOIC": 686012,
+        "Benign": 360833,
+        "DDOS attack-LOIC-UDP": 1730
+      }
+    },
+    "sampled_label_counts": {
+      "02-20-2018.csv": {
+        "Benign": 76191,
+        "DDoS attacks-LOIC-HTTP": 6000
+      },
+      "02-21-2018.csv": {
+        "Benign": 9022,
+        "DDOS attack-HOIC": 10991,
+        "DDOS attack-LOIC-UDP": 9
+      }
+    },
+    "rows_loaded": 35022,
+    "max_rows_per_class_per_file": 10000,
+    "candidate_feature_columns": [
+      "ack_flag_cnt",
+      "active_mean",
+      "bwd_pkt_len_mean",
+      "bwd_pkt_len_std",
+      "bwd_pkts_s",
+      "dst_port",
+      "flow_byts_s",
+      "flow_duration",
+      "flow_iat_max",
+      "flow_iat_mean",
+      "flow_iat_min",
+      "flow_iat_std",
+      "flow_pkts_s",
+      "fwd_pkt_len_mean",
+      "fwd_pkt_len_std",
+      "fwd_pkts_s",
+      "idle_mean",
+      "init_bwd_win_byts",
+      "init_fwd_win_byts",
+      "pkt_len_mean",
+      "pkt_len_std",
+      "pkt_len_var",
+      "protocol",
+      "syn_flag_cnt",
+      "tot_bwd_pkts",
+      "tot_fwd_pkts",
+      "totlen_bwd_pkts",
+      "totlen_fwd_pkts"
+    ],
+    "included_files": [
+      "02-20-2018.csv",
+      "02-21-2018.csv"
+    ]
+  },
+  "split_counts": {
+    "train": {
+      "0": 7500,
+      "1": 4500
+    },
+    "validation": {
+      "0": 2500,
+      "1": 1500
+    },
+    "test": {
+      "0": 9022,
+      "1": 10000
+    }
+  },
+  "raw_label_counts_by_split": {
+    "train": {
+      "Benign": 7500,
+      "DDoS attacks-LOIC-HTTP": 4500
+    },
+    "validation": {
+      "Benign": 2500,
+      "DDoS attacks-LOIC-HTTP": 1500
+    },
+    "test": {
+      "DDOS attack-HOIC": 9993,
+      "Benign": 9022,
+      "DDOS attack-LOIC-UDP": 7
+    }
+  },
+  "feature_count": 27,
+  "feature_columns": [
+    "protocol",
+    "flow_duration",
+    "tot_fwd_pkts",
+    "tot_bwd_pkts",
+    "totlen_fwd_pkts",
+    "totlen_bwd_pkts",
+    "fwd_pkt_len_mean",
+    "fwd_pkt_len_std",
+    "bwd_pkt_len_mean",
+    "bwd_pkt_len_std",
+    "flow_byts_s",
+    "flow_pkts_s",
+    "flow_iat_mean",
+    "flow_iat_std",
+    "flow_iat_max",
+    "flow_iat_min",
+    "fwd_pkts_s",
+    "bwd_pkts_s",
+    "pkt_len_mean",
+    "pkt_len_std",
+    "pkt_len_var",
+    "syn_flag_cnt",
+    "ack_flag_cnt",
+    "init_fwd_win_byts",
+    "init_bwd_win_byts",
+    "active_mean",
+    "idle_mean"
+  ],
+  "model_results": {
+    "majority_baseline": {
+      "train_seconds": 0.022582599995075725,
+      "selected_threshold": 0.5,
+      "validation": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "balanced_accuracy": 0.5,
+        "roc_auc": 0.5,
+        "pr_auc": 0.375,
+        "false_positive_rate": 0.0,
+        "confusion_matrix": {
+          "tn": 2500,
+          "fp": 0,
+          "fn": 1500,
+          "tp": 0
+        },
+        "inference_seconds": 0.0013217000014265068,
+        "rows": 4000,
+        "model": "majority_baseline",
+        "threshold": 0.5
+      },
+      "test": {
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "balanced_accuracy": 0.5,
+        "roc_auc": 0.5,
+        "pr_auc": 0.5257070760172432,
+        "false_positive_rate": 0.0,
+        "confusion_matrix": {
+          "tn": 9022,
+          "fp": 0,
+          "fn": 10000,
+          "tp": 0
+        },
+        "inference_seconds": 0.00556710000091698,
+        "rows": 19022,
+        "model": "majority_baseline",
+        "threshold": 0.5
+      }
+    },
+    "decision_tree": {
+      "train_seconds": 0.06952610000007553,
+      "selected_threshold": 0.5263157894736841,
+      "validation": {
+        "precision": 0.9809960681520314,
+        "recall": 0.998,
+        "f1": 0.9894249834765367,
+        "balanced_accuracy": 0.9932,
+        "roc_auc": 0.9987882666666666,
+        "pr_auc": 0.9962013149549719,
+        "false_positive_rate": 0.0116,
+        "confusion_matrix": {
+          "tn": 2471,
+          "fp": 29,
+          "fn": 3,
+          "tp": 1497
+        },
+        "inference_seconds": 0.0015681000004406087,
+        "rows": 4000,
+        "model": "decision_tree",
+        "threshold": 0.5263157894736841
+      },
+      "test": {
+        "precision": 0.5633802816901409,
+        "recall": 0.004,
+        "f1": 0.007943600436898023,
+        "balanced_accuracy": 0.5002819773886056,
+        "roc_auc": 0.6670011305697184,
+        "pr_auc": 0.6816576883972418,
+        "false_positive_rate": 0.003436045222788739,
+        "confusion_matrix": {
+          "tn": 8991,
+          "fp": 31,
+          "fn": 9960,
+          "tp": 40
+        },
+        "inference_seconds": 0.006505400000605732,
+        "rows": 19022,
+        "model": "decision_tree",
+        "threshold": 0.5263157894736841
+      }
+    },
+    "random_forest": {
+      "train_seconds": 1.041261600003054,
+      "selected_threshold": 0.5468471200350723,
+      "validation": {
+        "precision": 0.9966755319148937,
+        "recall": 0.9993333333333333,
+        "f1": 0.9980026631158455,
+        "balanced_accuracy": 0.9986666666666666,
+        "roc_auc": 0.9999720000000001,
+        "pr_auc": 0.9999529374017421,
+        "false_positive_rate": 0.002,
+        "confusion_matrix": {
+          "tn": 2495,
+          "fp": 5,
+          "fn": 1,
+          "tp": 1499
+        },
+        "inference_seconds": 0.023492000000260305,
+        "rows": 4000,
+        "model": "random_forest",
+        "threshold": 0.5468471200350723
+      },
+      "test": {
+        "precision": 0.75,
+        "recall": 0.0006,
+        "f1": 0.001199040767386091,
+        "balanced_accuracy": 0.5001891598315229,
+        "roc_auc": 0.5947497450676125,
+        "pr_auc": 0.7588829174501073,
+        "false_positive_rate": 0.00022168033695411216,
+        "confusion_matrix": {
+          "tn": 9020,
+          "fp": 2,
+          "fn": 9994,
+          "tp": 6
+        },
+        "inference_seconds": 0.0555845999988378,
+        "rows": 19022,
+        "model": "random_forest",
+        "threshold": 0.5468471200350723
+      }
+    }
+  },
+  "best_model": "random_forest",
+  "top_permutation_importance": [
+    {
+      "feature": "fwd_pkt_len_mean",
+      "importance_mean": 0.024405323668670632,
+      "importance_std": 0.0018902861205267896
+    },
+    {
+      "feature": "tot_bwd_pkts",
+      "importance_mean": 0.0111538906549842,
+      "importance_std": 0.000337804444501032
+    },
+    {
+      "feature": "bwd_pkts_s",
+      "importance_mean": 0.010662428561612392,
+      "importance_std": 0.0005867691874357317
+    },
+    {
+      "feature": "bwd_pkt_len_std",
+      "importance_mean": 0.009272114541428355,
+      "importance_std": 0.0017444436432611744
+    },
+    {
+      "feature": "totlen_bwd_pkts",
+      "importance_mean": 0.009045308456760947,
+      "importance_std": 0.0005064866605919379
+    },
+    {
+      "feature": "init_bwd_win_byts",
+      "importance_mean": 0.007301633468032231,
+      "importance_std": 0.0009198637792207077
+    },
+    {
+      "feature": "tot_fwd_pkts",
+      "importance_mean": 0.005846417004752724,
+      "importance_std": 0.0003550147908937613
+    },
+    {
+      "feature": "totlen_fwd_pkts",
+      "importance_mean": 0.0048420514562967695,
+      "importance_std": 0.0010413235191782371
+    },
+    {
+      "feature": "fwd_pkt_len_std",
+      "importance_mean": 0.003022054040759348,
+      "importance_std": 0.0005972483570866274
+    },
+    {
+      "feature": "init_fwd_win_byts",
+      "importance_mean": 0.002786254074253325,
+      "importance_std": 0.00036594542417466773
+    }
+  ],
+  "methodology_notes": [
+    "All preprocessing is fitted inside sklearn Pipelines on training data only.",
+    "Classification thresholds are selected on validation data only, then applied once to the final holdout.",
+    "SMOTE is intentionally not used; class-weighted tree models are simpler and avoid oversampling leakage risk.",
+    "MLP is intentionally not retained because the legacy notebook did not converge and tree models are sufficient for this scoped tabular baseline.",
+    "Final test data is grouped by source CSV file rather than random row split."
+  ]
+}

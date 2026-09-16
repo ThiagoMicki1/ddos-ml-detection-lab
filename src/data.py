@@ -81,6 +81,20 @@ def list_csv_files(data_dir: str | Path) -> list[Path]:
     return sorted(Path(data_dir).glob("*.csv"))
 
 
+def select_csv_files(
+    data_dir: str | Path, include_files: Iterable[str] | None = None
+) -> list[Path]:
+    files = list_csv_files(data_dir)
+    if include_files is None:
+        return files
+    wanted = set(include_files)
+    selected = [path for path in files if path.name in wanted]
+    missing = sorted(wanted - {path.name for path in selected})
+    if missing:
+        raise FileNotFoundError(f"Missing expected CSV files: {', '.join(missing)}")
+    return selected
+
+
 def profile_schemas(data_dir: str | Path) -> dict[str, list[str]]:
     schemas: dict[str, list[str]] = {}
     for path in list_csv_files(data_dir):
@@ -96,6 +110,7 @@ def load_binary_dataset(
     chunksize: int = 100_000,
     random_state: int = RANDOM_SEED,
     feature_columns: set[str] | None = None,
+    include_files: Iterable[str] | None = None,
 ) -> tuple[pd.DataFrame, dict]:
     """Load a deterministic sample for benign-vs-DDoS classification.
 
@@ -111,7 +126,8 @@ def load_binary_dataset(
     selected_columns = set(feature_columns or DEFAULT_FEATURE_COLUMNS)
     selected_columns.add("label")
 
-    for file_index, path in enumerate(list_csv_files(data_dir)):
+    files = select_csv_files(data_dir, include_files)
+    for file_index, path in enumerate(files):
         before = Counter()
         after = Counter()
         for chunk_index, chunk in enumerate(
@@ -177,6 +193,7 @@ def load_binary_dataset(
         "rows_loaded": int(len(sampled)),
         "max_rows_per_class_per_file": max_rows_per_class_per_file,
         "candidate_feature_columns": sorted(selected_columns - {"label"}),
+        "included_files": [path.name for path in files],
     }
     return sampled, profile
 

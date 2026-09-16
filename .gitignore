@@ -8,12 +8,12 @@ Untitled.ipynb
 .ipynb_checkpoints/
 backups/
 legacy_*
-confusion_matrix.png
-eda_distributions.png
-feature_importance.csv
-feature_importance.png
-model_results_final.csv
-rf_tuning_comparison.png
+/confusion_matrix.png
+/eda_distributions.png
+/feature_importance.csv
+/feature_importance.png
+/model_results_final.csv
+/rf_tuning_comparison.png
 
 # Python and notebook runtime files.
 __pycache__/
@@ -34,3 +34,7 @@ venv/
 Thumbs.db
 .vscode/
 .idea/
+
+# Local smoke-test output.
+reports/smoke/
+notebooks/executed_*.ipynb

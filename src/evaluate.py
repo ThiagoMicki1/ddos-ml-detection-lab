@@ -5,6 +5,7 @@ from sklearn.metrics import (
     average_precision_score,
     balanced_accuracy_score,
     confusion_matrix,
+    precision_recall_curve,
     precision_recall_fscore_support,
     roc_auc_score,
 )
@@ -43,3 +44,13 @@ def compute_binary_metrics(y_true, y_pred, y_score) -> dict:
             "tp": int(tp),
         },
     }
+
+
+def best_f1_threshold(y_true, y_score) -> float:
+    precision, recall, thresholds = precision_recall_curve(y_true, y_score)
+    if len(thresholds) == 0:
+        return 0.5
+    f1_scores = (2 * precision[:-1] * recall[:-1]) / (
+        precision[:-1] + recall[:-1] + 1e-12
+    )
+    return float(thresholds[int(np.nanargmax(f1_scores))])

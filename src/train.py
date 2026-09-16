@@ -17,10 +17,10 @@ from sklearn.tree import DecisionTreeClassifier
 
 try:
     from .data import RANDOM_SEED, load_binary_dataset, make_feature_frame
-    from .evaluate import compute_binary_metrics, positive_class_probability
+    from .evaluate import best_f1_threshold, compute_binary_metrics, positive_class_probability
 except ImportError:  # Allows `python src/train.py` from the repo root.
     from data import RANDOM_SEED, load_binary_dataset, make_feature_frame
-    from evaluate import compute_binary_metrics, positive_class_probability
+    from evaluate import best_f1_threshold, compute_binary_metrics, positive_class_probability
 
 
 def build_models(seed: int) -> dict[str, Pipeline]:
@@ -52,7 +52,7 @@ def build_models(seed: int) -> dict[str, Pipeline]:
                         max_depth=16,
                         min_samples_leaf=10,
                         class_weight="balanced_subsample",
-                        n_jobs=-1,
+                        n_jobs=1,
                         random_state=seed,
                     ),
                 ),
@@ -61,15 +61,16 @@ def build_models(seed: int) -> dict[str, Pipeline]:
     }
 
 
-def evaluate_model(name: str, model: Pipeline, X, y) -> dict:
+def evaluate_model(name: str, model: Pipeline, X, y, *, threshold: float = 0.5) -> dict:
     start = time.perf_counter()
-    predictions = model.predict(X)
     scores = positive_class_probability(model, X)
+    predictions = (scores >= threshold).astype(int)
     inference_seconds = time.perf_counter() - start
     metrics = compute_binary_metrics(y, predictions, scores)
     metrics["inference_seconds"] = float(inference_seconds)
     metrics["rows"] = int(len(y))
     metrics["model"] = name
+    metrics["threshold"] = float(threshold)
     return metrics
 
 
@@ -102,6 +103,7 @@ def run_experiment(args: argparse.Namespace) -> dict:
         max_rows_per_class_per_file=args.max_rows_per_class_per_file,
         chunksize=args.chunksize,
         random_state=args.seed,
+        include_files=args.include_files,
     )
     if args.holdout_file not in set(data["source_file"]):
         raise ValueError(f"Holdout file {args.holdout_file!r} was not loaded.")
@@ -140,9 +142,12 @@ def run_experiment(args: argparse.Namespace) -> dict:
         model.fit(X_train, y_train)
         train_seconds = time.perf_counter() - start
         fitted_models[name] = model
+        validation_scores = positive_class_probability(model, X_val)
+        threshold = 0.5 if name == "majority_baseline" else best_f1_threshold(y_val, validation_scores)
         model_results[name] = {
             "train_seconds": float(train_seconds),
-            "validation": evaluate_model(name, model, X_val, y_val),
+            "selected_threshold": threshold,
+            "validation": evaluate_model(name, model, X_val, y_val, threshold=threshold),
         }
 
     best_model_name = max(
@@ -151,7 +156,13 @@ def run_experiment(args: argparse.Namespace) -> dict:
     )
     best_model = fitted_models[best_model_name]
     for name, model in fitted_models.items():
-        model_results[name]["test"] = evaluate_model(name, model, X_test, y_test)
+        model_results[name]["test"] = evaluate_model(
+            name,
+            model,
+            X_test,
+            y_test,
+            threshold=model_results[name]["selected_threshold"],
+        )
 
     best_test_metrics = model_results[best_model_name]["test"]
     save_confusion_matrix(best_test_metrics, figures_dir / "confusion_matrix.png")
@@ -168,7 +179,7 @@ def run_experiment(args: argparse.Namespace) -> dict:
             n_repeats=5,
             random_state=args.seed,
             scoring="average_precision",
-            n_jobs=-1,
+            n_jobs=1,
         )
         importance = pd.DataFrame(
             {
@@ -212,6 +223,7 @@ def run_experiment(args: argparse.Namespace) -> dict:
         "top_permutation_importance": importance_rows,
         "methodology_notes": [
             "All preprocessing is fitted inside sklearn Pipelines on training data only.",
+            "Classification thresholds are selected on validation data only, then applied once to the final holdout.",
             "SMOTE is intentionally not used; class-weighted tree models are simpler and avoid oversampling leakage risk.",
             "MLP is intentionally not retained because the legacy notebook did not converge and tree models are sufficient for this scoped tabular baseline.",
             "Final test data is grouped by source CSV file rather than random row split.",
@@ -236,6 +248,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--data-dir", default="data", help="Directory containing CSE-CIC-IDS2018 CSV files.")
     parser.add_argument("--reports-dir", default="reports", help="Output directory for metrics and figures.")
     parser.add_argument("--holdout-file", default="02-21-2018.csv", help="CSV file reserved for final testing.")
+    parser.add_argument(
+        "--include-files",
+        nargs="+",
+        default=["02-20-2018.csv", "02-21-2018.csv"],
+        help="CSV files used for this scoped DDoS experiment.",
+    )
     parser.add_argument("--max-rows-per-class-per-file", type=int, default=10_000)
     parser.add_argument("--chunksize", type=int, default=100_000)
     parser.add_argument("--validation-size", type=float, default=0.25)
